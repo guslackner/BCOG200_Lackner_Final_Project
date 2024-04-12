@@ -4,6 +4,15 @@ from Hex_Logic import Gameboard
 
 class Draw:
     def __init__(self, gameboard, size=11, separation=20):
+        """
+        Initializes the Draw class with a gameboard, size, and separation.
+        
+        Parameters:
+        - gameboard: imported logic class.
+        - size: The dimensions of the gameboard. Default is 11x11.
+        - separation: The separation between hexagons. Default 20px. Same as 2*radius
+        """
+        
         #initialize
         self.gameboard = gameboard
         self.size = size
@@ -33,9 +42,16 @@ class Draw:
         
         
     def get_board(self):
+        """
+        Fetches the gamestate from the logic class and flatten it from an array into a tuple so that any entry can be easily found
+        """
+        
         self.flat_board = tuple([item for sublist in self.gameboard.board for item in sublist])
 
     def update_board(self):
+        """
+        Updates the gameboard display with the current game state. Called recursively by make_move()
+        """
         self.get_board()
         self.points = self.translate_points()
         self.draw_hex(self.canvas, self.points, self.separation)
@@ -43,6 +59,16 @@ class Draw:
         self.canvas.update()
 
     def draw_hexagon(self, canvas, center_x, center_y, color='grey'):
+        """
+        Draws a hexagon on the canvas at the specified center coordinates with the given color. Note that the hexagon is balanced on its end by a rotation by pi/6 radians. 
+        
+        Parameters:
+        - canvas: The Tkinter canvas to draw on.
+        - center_x: The x-coordinate of the hexagon's center.
+        - center_y: The y-coordinate of the hexagon's center.
+        - color: The color of the hexagon. Default is 'grey', 'blue', and 'red' are also used
+        """
+        
         # Calculate the coordinates of the hexagon's vertices with adjusted angles
         points = []
         for i in range(6):
@@ -56,6 +82,16 @@ class Draw:
         canvas.create_polygon(points, fill=color, outline='black')
 
     def find_points(self, size, separation):
+        """
+        Calculates and returns the points for drawing hexagons and buttons based on the size (dimension) and separation (two radii between each center point).
+        
+        Parameters:
+        - size: The dimension of the gameboard.
+        - separation: The separation between adjacent hexagons' centers.
+        
+        Returns:
+        - A list of points for creating the grid.
+        """
         points = []
         for row in range(size):
             #calculate the starting y-coordinate for the current row the root three comes from pythangoreas (2r)^2 = r^2 + x^2 
@@ -71,6 +107,12 @@ class Draw:
         return points
 
     def average_points(self):
+        """
+        Calculates and returns the average x and y coordinates for all points.
+        
+        Returns:
+        - A tuple of the average x and y coordinates.
+        """
         #sum the coordinates
         sum_x = sum(point[0] for point in self.points)
         sum_y = sum(point[1] for point in self.points)
@@ -82,6 +124,12 @@ class Draw:
         return avg_x, avg_y
 
     def translate_points(self):
+        """
+        Translates the points to the center of the canvas.
+        
+        Returns:
+        - centered points.
+        """
         #get the average
         avg_x, avg_y = self.average_points()
 
@@ -99,6 +147,14 @@ class Draw:
 
 
     def draw_hex(self, canvas, points, separation):
+        """
+        Draws hexagons on the canvas based on the points and separation.
+        
+        Parameters:
+        - canvas: The Tkinter canvas to draw on.
+        - points: The points for drawing hexagons.
+        - separation: The separation between adjacent hexagons' centers.
+        """
         for i, point in enumerate(points):
             x, y = point
             color='grey'
@@ -110,6 +166,15 @@ class Draw:
 
         
     def draw_buttons(self, canvas, points, separation, size):
+        """
+        Draws invisible rectangular buttons on top of the hexagons for user interaction.
+        
+        Parameters:
+        - canvas: The Tkinter canvas to draw on.
+        - points: The points grid.
+        - separation: The separation between adjacent hexagons' centers.
+        - size: The dimension of the gameboard.
+        """
         #draw invisible rectangular buttons on top of the hexagons
         for i, point in enumerate(points):
             x, y = point
@@ -121,6 +186,12 @@ class Draw:
             canvas.tag_bind(square, '<Button-1>', lambda event, i=i: self.make_move(i))
 
     def make_move(self, i):
+        """
+        Processes a move based on the index of the clicked hexagon. Reffered to from the buttons in draw_buttons().
+        
+        Parameters:
+        - i: The index of the clicked hexagon. Also requires knowledge of the size, but takes this from the object.
+        """
         #given the index, figure out what row and it represents
         self.row_index = i // self.size
         self.col_index = i % self.size
@@ -136,6 +207,9 @@ class Draw:
             self.update_board()
             
     def winner_dialog(self):
+        """
+        Displays a dialog box announcing the winner of the game.
+        """
         winner = 'Red wins' if self.turn % 2 == 0 else 'Blue wins'
         
         #new top-level window
@@ -151,6 +225,9 @@ class Draw:
         quit_button.pack(pady=10)
     
     def intro_dialogue(self):
+        """
+        Displays an introductory dialog box with game instructions.
+        """
         #new top-level window
         rules_dialog = tk.Toplevel(self.canvas, width=150, height=150)
         rules_dialog.title('How to play')
